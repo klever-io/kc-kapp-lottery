@@ -7,7 +7,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { LOTTERY_FUNCTIONS, LOTTERY_NAME, SC_ADDRESS } from "../../../env";
-import ButtonBox from "../../components/button-box";
+import PageBox from "../../components/page-box";
 import { useAuth } from "../../contexts/auth-context";
 import { stringToHex } from "../../lib/hex";
 import { verifyScStatus } from "../../lib/lottery-status";
@@ -105,10 +105,14 @@ export default function Page() {
   }
 
   return (
-    <ButtonBox
+    <PageBox
       loading={isLoading}
       clickFn={endLottery}
-      spanTxt="Determine winner (end lottery)"
+      h1Text="End the previous Lottery"
+      h3Text="The last lottery deadline has ended. Below you can determine the
+              winner of the last lottery using part of your KLV and then start a
+              new one to enjoy the game!"
+      spanText="Determine winner (end lottery)"
       icon={<Crown strokeWidth={1.5} />}
     />
   );

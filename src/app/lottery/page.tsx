@@ -12,7 +12,7 @@ import {
   LOTTERY_PRICE,
   SC_ADDRESS,
 } from "../../../env";
-import ButtonBox from "../../components/button-box";
+import PageBox from "../../components/page-box";
 import { useAuth } from "../../contexts/auth-context";
 import { stringToHex } from "../../lib/hex";
 import { verifyScStatus } from "../../lib/lottery-status";
@@ -109,10 +109,12 @@ export default function Page() {
   }
 
   return (
-    <ButtonBox
+    <PageBox
       loading={isLoading}
       clickFn={buyTicket}
-      spanTxt="Buy lottery ticket"
+      h1Text="Ticket Office"
+      h3Text="Buy a ticket and have fun!"
+      spanText="Buy lottery ticket"
       icon={<Ticket strokeWidth={1.5} />}
     />
   );

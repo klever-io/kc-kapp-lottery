@@ -13,7 +13,7 @@ import {
   LOTTERY_TOKEN,
   SC_ADDRESS,
 } from "../../../env";
-import ButtonBox from "../../components/button-box";
+import PageBox from "../../components/page-box";
 import { useAuth } from "../../contexts/auth-context";
 import { stringToHex } from "../../lib/hex";
 import { verifyScStatus } from "../../lib/lottery-status";
@@ -117,10 +117,16 @@ export default function Page() {
   }
 
   return (
-    <ButtonBox
+    <PageBox
       loading={isLoading}
       clickFn={startNewLottery}
-      spanTxt="Start new lottery"
+      h1Text="Start New Lottery"
+      h3Text={
+        `The last lottery deadline has ended. Below you can determine the
+        winner of the last lottery and then start a new one using some of
+        your ${LOTTERY_TOKEN}.`
+      }
+      spanText="Start new lottery"
       icon={<Dices strokeWidth={1.5} />}
     />
   );
