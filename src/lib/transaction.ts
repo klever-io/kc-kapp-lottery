@@ -28,7 +28,7 @@ const transactionsProcessed = async (
           error = data;
         }
 
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+        await new Promise((resolve) => setTimeout(resolve, 2000));
       }
       throw error;
     }
