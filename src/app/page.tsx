@@ -32,8 +32,6 @@ export default function Home() {
         throw Error("Cannot retrieve wallet address");
       }
 
-      await window.kleverWeb.signMessage(signMessage);
-
       web.setProvider({
         node: "https://node" + PROVIDER_URL,
         api: "https://api" + PROVIDER_URL,
@@ -64,7 +62,7 @@ export default function Home() {
   }
 
   return (
-    <main className="w-screen h-screen flex items-center justify-center">
+    <main className="flex items-center justify-center">
       {loading ? (
         <Oval
           visible={true}
