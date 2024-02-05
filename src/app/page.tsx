@@ -7,9 +7,9 @@ import { useAuth } from "@/contexts/auth-context";
 import { web } from "@klever/sdk-web";
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
+import { Oval } from "react-loader-spinner";
 import { PROVIDER_URL } from "../../env";
 import { verifyScStatus } from "../lib/lottery-status";
-import { Oval } from "react-loader-spinner";
 
 export default function Home() {
   const [loading, setLoading] = useState(false);
@@ -45,15 +45,12 @@ export default function Home() {
       if (status !== null) {
         switch (status.data.data) {
           case "0":
-            console.log(status);
             router.push("/start");
             break;
           case "2":
-            console.log(status);
             router.push("/end");
             break;
           default:
-            console.log(status);
             router.push("/lottery");
         }
       }

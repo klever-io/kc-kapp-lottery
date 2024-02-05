@@ -17,9 +17,12 @@ export default function Page() {
   const router = useRouter();
 
   const { address } = useAuth();
-  if (!address) {
-    router.replace("/");
-  }
+
+  useEffect(() => {
+    if (!address) {
+      router.push("/");
+    }
+  }, [address, router]);
 
   const [isLoading, setIsLoading] = useState(false);
 
