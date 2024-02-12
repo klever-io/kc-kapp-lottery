@@ -11,7 +11,7 @@ export function Button({ loading, className, children, ...rest }: ButtonProps) {
     <button
       data-loading={loading}
       className={twMerge(
-        "mt-4 flex items-center justify-center w-full px-1.5 h-8 bg-slate-700 rounded-md text-white text-sm hover:bg-slate-600 disabled:bg-slate-400 disabled:cursor-not-allowed",
+        "mt-4 flex items-center justify-center w-full px-1.5 h-8 bg-[--background-button] rounded-md text-sm hover:bg-[--background-button-lighten] disabled:bg-[--background-button-darken] disabled:cursor-not-allowed",
         className
       )}
       {...rest}

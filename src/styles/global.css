@@ -4,8 +4,34 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+
+    --background: #0b0b1e;
+    --card-background: linear-gradient(rgba(34, 35, 69, 0.5) 0%, rgba(34, 35, 69, 0) 100%) gradient;
+    --border-color:rgb(34, 35, 69);
+    --begin-gradient: rgba(34, 35, 69, 0.5) 0%;
+    --end-gradient: rgba(34, 35, 69, 0) 100%;
+
+    --font-color-1: #fff;
+    --font-color-2: #c6c7eb;
+    --font-color-3: #646693;
+    --background-button: #AA33b5;
+    --background-button-lighten:#C451CE;
+    --background-button-darken:#77247f;
+
+
+
+  /* rgb(198, 199, 235) other font color */
+
+  /* rgb(100, 102, 147) other font color */
+
+  /* rgb(170, 51, 181) klever bg purple */
+
+  /* linear-gradient(rgba(34, 35, 69, 0.5) 0%, rgba(34, 35, 69, 0) 100%) gradient */
+
+  /*  rgb(11, 11, 30) other bg */
+
+    color: white;
+    /* --foreground: 210 40% 98%;
 
     --card: 0 0% 100%;
     --card-foreground: 222.2 84% 4.9%;
@@ -30,12 +56,12 @@
 
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --ring: 222.2 84% 4.9%; */
 
     --radius: 0.5rem;
   }
 
-  .dark {
+  /* .dark {
     --background: 222.2 84% 4.9%;
     --foreground: 210 40% 98%;
 
@@ -63,7 +89,7 @@
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
     --ring: 212.7 26.8% 83.9%;
-  }
+  } */
 }
 
 @layer base {
