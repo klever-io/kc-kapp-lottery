@@ -164,10 +164,10 @@ export default function Page() {
     try {
       setIsLoading(true);
 
-      const freshScStatus = await verifyScStatus();
+      const comparisonScStatus = await verifyScStatus();
 
-      if (freshScStatus !== scStatus) {
-        setScStatus(freshScStatus);
+      if (comparisonScStatus !== scStatus) {
+        setScStatus(comparisonScStatus);
         setIsLoading(false);
         return;
       }
@@ -199,8 +199,12 @@ export default function Page() {
 
       await transactionsProcessed([broadcastResponse], 10);
 
-      const { data, error } = await broadcastResponse;
+      const [{ data, error }, freshScStatus] = await Promise.all([
+        broadcastResponse,
+        verifyScStatus(),
+      ]);
 
+      setScStatus(freshScStatus);
       setIsLoading(false);
 
       if (error.length > 0) throw new Error(error);
