@@ -1,23 +1,38 @@
-import { PROVIDER_URL, SC_ADDRESS } from '../../env';
-import { scStatus } from '../types/sc';
-import { stringToHex } from './hex';
+import { PROVIDER_URL, SC_ADDRESS } from "../../env";
+import { ScInfo, ScStatus } from "../types/sc";
+import { stringToHex } from "./hex";
 
-export async function verifyScStatus(): Promise<scStatus> {
-  const lotteryNameHex = stringToHex("Test1");
+export async function verifyScStatus(): Promise<ScStatus> {
+  try {
+    const statusParsed: { [statusDigit: string]: ScStatus } = {
+      "0": "ENDED",
+      "1": "ACTIVE",
+      "2": "PENDING",
+    };
 
-  const body = JSON.stringify({
-    scAddress: SC_ADDRESS,
-    funcName: "status",
-    args: [lotteryNameHex],
-  });
+    const lotteryNameHex = stringToHex("Test1");
 
-  const res = await fetch("https://node" + PROVIDER_URL + "/vm/int", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body,
-  });
+    const body = JSON.stringify({
+      scAddress: SC_ADDRESS,
+      funcName: "status",
+      args: [lotteryNameHex],
+    });
 
-  const data = await res.json() as unknown as scStatus;
+    const res = await fetch("https://node" + PROVIDER_URL + "/vm/int", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body,
+    });
 
-  return data
+    if (!res.ok) {
+      return "ERROR";
+    }
+
+    const data = (await res.json()) as unknown as ScInfo;
+
+    return statusParsed[data.data.data];
+  } catch (error) {
+    console.error("Error verifying SC status", error);
+    return "ERROR";
+  }
 }
