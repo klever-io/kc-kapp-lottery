@@ -4,31 +4,33 @@
 
 @layer base {
   :root {
-
     --background: #0b0b1e;
-    --card-background: linear-gradient(rgba(34, 35, 69, 0.5) 0%, rgba(34, 35, 69, 0) 100%) gradient;
-    --border-color:rgb(34, 35, 69);
+    --card-background: linear-gradient(
+        rgba(34, 35, 69, 0.5) 0%,
+        rgba(34, 35, 69, 0) 100%
+      )
+      gradient;
+    --border-color: rgb(34, 35, 69);
     --begin-gradient: rgba(34, 35, 69, 0.5) 0%;
     --end-gradient: rgba(34, 35, 69, 0) 100%;
 
     --font-color-1: #fff;
     --font-color-2: #c6c7eb;
     --font-color-3: #646693;
-    --background-button: #AA33b5;
-    --background-button-lighten:#C451CE;
-    --background-button-darken:#77247f;
+    --background-button: #aa33b5;
+    --background-button-lighten: #c451ce;
+    --background-button-darken: #77247f;
+    --boxes-width: min(30rem, 94vw);
 
+    /* rgb(198, 199, 235) other font color */
 
+    /* rgb(100, 102, 147) other font color */
 
-  /* rgb(198, 199, 235) other font color */
+    /* rgb(170, 51, 181) klever bg purple */
 
-  /* rgb(100, 102, 147) other font color */
+    /* linear-gradient(rgba(34, 35, 69, 0.5) 0%, rgba(34, 35, 69, 0) 100%) gradient */
 
-  /* rgb(170, 51, 181) klever bg purple */
-
-  /* linear-gradient(rgba(34, 35, 69, 0.5) 0%, rgba(34, 35, 69, 0) 100%) gradient */
-
-  /*  rgb(11, 11, 30) other bg */
+    /*  rgb(11, 11, 30) other bg */
 
     color: white;
     /* --foreground: 210 40% 98%;
@@ -100,4 +102,3 @@
     @apply bg-background text-foreground;
   }
 }
-

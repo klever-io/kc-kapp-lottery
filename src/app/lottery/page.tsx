@@ -2,24 +2,55 @@
 
 import { toast } from "@/components/ui/use-toast";
 import { ISmartContract, TransactionType, web } from "@klever/sdk-web";
-import { Ticket } from "lucide-react";
+import { Crown, Dices, Ticket } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import React, { ReactElement, useCallback, useEffect, useState } from "react";
+import { Oval } from "react-loader-spinner";
 import {
   LOTTERY_FUNCTIONS,
   LOTTERY_NAME,
   LOTTERY_PRICE,
+  LOTTERY_TOKEN,
   SC_ADDRESS,
 } from "../../../env";
-import PageBox from "../../components/page-box";
+import { Button } from "../../components/button";
 import { useAuth } from "../../contexts/auth-context";
 import { stringToHex } from "../../lib/hex";
 import { verifyScStatus } from "../../lib/lottery-status";
 import { transactionsProcessed } from "../../lib/transaction";
+import { ScStatus } from "../../types/sc";
 
 export default function Page() {
-  const [isLoading, setIsLoading] = useState(false);
+  type UiParams = {
+    h1Text: string;
+    h3Text: string;
+    spanText: string;
+    icon: ReactElement;
+  };
+
+  type LotteryActionParams = {
+    lotteryFunction: string;
+    hexArgs: string;
+    toastMessage: string;
+    callValue?: { [tokenName: string]: number };
+  };
+
+  const [isLoading, setIsLoading] = useState(true);
+  const [firstRender, setFirstRender] = useState(true);
+  const [lotteryActionParams, setLotteryActionParams] =
+    useState<LotteryActionParams>({
+      lotteryFunction: "",
+      hexArgs: "",
+      toastMessage: "",
+    });
+  const [scStatus, setScStatus] = useState<ScStatus>("FETCHING");
+  const [uiParams, setUiParams] = useState<UiParams>({
+    h1Text: "",
+    h3Text: "",
+    spanText: "",
+    icon: <></>,
+  });
   const router = useRouter();
 
   const { address } = useAuth();
@@ -30,40 +61,132 @@ export default function Page() {
     }
   }, [address, router]);
 
-  const evalStatus = useCallback(async () => {
-    setIsLoading(true);
+  const prepareStates = useCallback(
+    (status: ScStatus) => {
+      switch (status) {
+        case "ERROR":
+          toast({
+            variant: "destructive",
+            title: "Error",
+            description: "An error occurred while verifying the lottery status",
+          });
+          router.push("/");
+          break;
+        case "ENDED":
+          const lotteryDurationSeconds = 300; // 5 minutes
+          const timestampSeconds = Math.floor(Date.now() / 1000);
+          const deadline = timestampSeconds + lotteryDurationSeconds;
 
-    const status = await verifyScStatus();
+          setLotteryActionParams({
+            lotteryFunction: LOTTERY_FUNCTIONS.start,
+            hexArgs:
+              `@${stringToHex(LOTTERY_NAME)}` +
+              `@${stringToHex(LOTTERY_TOKEN)}` +
+              `@${LOTTERY_PRICE.toString(16)}` +
+              `@@01${deadline.toString(16).padStart(16, "0").toUpperCase()}@@@`,
+            toastMessage: "Lottery started successfully!",
+          });
 
-    setIsLoading(false);
+          setUiParams({
+            h1Text: "Lottery not started yet",
+            h3Text:
+              "Start a new lottery yourself using some of your KLV and have fun playing!",
+            spanText: "Start lottery",
+            icon: <Dices strokeWidth={1.5} />,
+          });
+          break;
+        case "ACTIVE":
+          setLotteryActionParams({
+            lotteryFunction: LOTTERY_FUNCTIONS.buy,
+            hexArgs: `@${stringToHex(LOTTERY_NAME)}`,
+            toastMessage: "You bought a ticket!",
+            callValue: { KLV: LOTTERY_PRICE },
+          });
 
-    if (status !== null && status.data.data === "0") {
-      router.push("/start");
-    }
+          setUiParams({
+            h1Text: "Ticket Office",
+            h3Text: "Buy a ticket and have fun!",
+            spanText: "Buy lottery ticket",
+            icon: <Ticket strokeWidth={1.5} />,
+          });
+          break;
+        case "PENDING":
+          setLotteryActionParams({
+            lotteryFunction: LOTTERY_FUNCTIONS.end,
+            hexArgs: `@${stringToHex(LOTTERY_NAME)}`,
+            toastMessage: "Lottery ended successfully!",
+          });
 
-    if (status !== null && status.data.data === "2") {
-      router.push("/end");
-    }
-  }, [router]);
+          setUiParams({
+            h1Text: "End the previous Lottery",
+            h3Text:
+              "The last lottery deadline has ended. Below you can determine the winner of the last lotter using part of your KLV and then start a new one to enjoy the game!",
+            spanText: "Determine winner (end lottery)",
+            icon: <Crown strokeWidth={1.5} />,
+          });
+          break;
+        default:
+          console.error(
+            "An error occurred while verifying the lottery status default",
+          );
+          router.push("/");
+          break;
+      }
+    },
+    [router],
+  );
 
   useEffect(() => {
-    evalStatus();
-  }, [evalStatus]);
+    (async () => {
+      const status = await verifyScStatus();
+      setScStatus(status);
+    })();
+    setIsLoading(false);
+  }, []);
 
-  async function buyTicket() {
+  useEffect(() => {
+    if (scStatus === "FETCHING") return;
+    prepareStates(scStatus);
+  }, [scStatus, prepareStates]);
+
+  useEffect(() => {
+    if (uiParams.h1Text.length !== 0) {
+      setFirstRender(false);
+    }
+  }, [uiParams, lotteryActionParams]);
+
+  async function lotteryActions({
+    lotteryFunction,
+    hexArgs,
+    toastMessage,
+    callValue,
+  }: LotteryActionParams) {
     try {
       setIsLoading(true);
+
+      const freshScStatus = await verifyScStatus();
+
+      if (freshScStatus !== scStatus) {
+        setScStatus(freshScStatus);
+        setIsLoading(false);
+        return;
+      }
 
       const payload: ISmartContract = {
         address: SC_ADDRESS,
         scType: 0,
-        callValue: { KLV: LOTTERY_PRICE },
+        callValue,
       };
 
       const txData: string = Buffer.from(
-        LOTTERY_FUNCTIONS.buy + `@${stringToHex(LOTTERY_NAME)}`,
+        lotteryFunction + hexArgs,
         "utf8",
       ).toString("base64");
+
+      console.log("lotteruFunction:", lotteryFunction);
+      console.log("hexArgs:", hexArgs);
+      console.log("toastMessage:", toastMessage);
+      console.log("callValue:", callValue);
 
       const unsignedTx = await web.buildTransaction(
         [
@@ -90,11 +213,11 @@ export default function Page() {
       const hash = data.txsHashes[0];
 
       toast({
-        title: "You bought a ticket!",
+        title: toastMessage,
         description: (
           <Link
             target="_blank"
-            href={`https://devnet.kleverscan.org/transaction/${hash}?withResults=true`}
+            href={`https://devnet.kleverscan.org/transaction/${hash}`}
           >
             <p className="max-w-xs truncate underline">{hash}</p>
           </Link>
@@ -109,13 +232,55 @@ export default function Page() {
   }
 
   return (
-    <PageBox
-      loading={isLoading}
-      clickFn={buyTicket}
-      h1Text="Ticket Office"
-      h3Text="Buy a ticket and have fun!"
-      spanText="Buy lottery ticket"
-      icon={<Ticket strokeWidth={1.5} />}
-    />
+    <>
+      {firstRender ? (
+        <Oval
+          visible={true}
+          height="80"
+          width="80"
+          color="#fff"
+          secondaryColor="#fff"
+          ariaLabel="oval-loading"
+          wrapperStyle={{}}
+          wrapperClass=""
+        />
+      ) : (
+        <main className="flex items-center justify-center">
+          <div className="bg-gradient-to-r from-[--begin-gradient] to-[--end-gradient] p-4 border border-[--border-color] rounded-md w-[--boxes-width]">
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <h1 className="font-bold text-lg">{uiParams.h1Text}</h1>
+                <h3 className="text-sm">{uiParams.h3Text}</h3>
+              </div>
+            </div>
+
+            <div className="mt-2 mb-6 h-[1px] w-full bg-slate-300" />
+            <Button
+              type="button"
+              disabled={isLoading}
+              onClick={() => lotteryActions(lotteryActionParams)}
+            >
+              {isLoading ? (
+                <Oval
+                  visible={true}
+                  height="16"
+                  width="16"
+                  color="#fff"
+                  secondaryColor="#fff"
+                  ariaLabel="oval-loading"
+                />
+              ) : (
+                <>
+                  {React.cloneElement(uiParams.icon, {
+                    className: "w-5 h-5 pr-1",
+                  })}
+                  <span>{uiParams.spanText}</span>
+                </>
+              )}
+            </Button>
+          </div>
+        </main>
+      )}
+    </>
   );
 }

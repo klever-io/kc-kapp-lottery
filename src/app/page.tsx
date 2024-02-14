@@ -2,14 +2,12 @@
 
 import { Button } from "@/components/button";
 import { useToast } from "@/components/ui/use-toast";
-//
 import { useAuth } from "@/contexts/auth-context";
 import { web } from "@klever/sdk-web";
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 import { Oval } from "react-loader-spinner";
 import { PROVIDER_URL } from "../../env";
-import { verifyScStatus } from "../lib/lottery-status";
 
 export default function Home() {
   const [loading, setLoading] = useState(false);
@@ -39,19 +37,7 @@ export default function Home() {
 
       setAddress(address);
 
-      const status = await verifyScStatus();
-      if (status !== null) {
-        switch (status.data.data) {
-          case "0":
-            router.push("/start");
-            break;
-          case "2":
-            router.push("/end");
-            break;
-          default:
-            router.push("/lottery");
-        }
-      }
+      router.push("/lottery");
     } catch (error) {
       toast({
         variant: "destructive",
@@ -64,26 +50,31 @@ export default function Home() {
   return (
     <main className="flex items-center justify-center">
       <form
-      onSubmit={onSubmit}
-      className="bg-gradient-to-r from-[--begin-gradient]
-       to-[--end-gradient] p-4 border border-[--border-color] rounded-md w-80">
-          <div>
-            <h1 className="font-bold text-lg">Lottery Smart Contract</h1>
-            <h3 className="text-sm">Sign in with extension</h3>
-          </div>
-          <div className="mt-2 mb-6 h-[1px] w-full bg-slate-300" />
+        onSubmit={onSubmit}
+        className="bg-gradient-to-r from-[--begin-gradient]
+       to-[--end-gradient] p-4 border border-[--border-color] rounded-md w-[--boxes-width]"
+      >
+        <div>
+          <h1 className="font-bold text-lg">Lottery Smart Contract</h1>
+          <h3 className="text-sm">Sign in with extension</h3>
+        </div>
+        <div className="mt-2 mb-6 h-[1px] w-full bg-slate-300" />
 
-          <Button disabled={loading} type="submit">
-           {loading ? ( <Oval
-          visible={true}
-          height="16"
-          width="16"
-          color="#fff"
-          secondaryColor="#fff"
-          ariaLabel="oval-loading"
-        />): "Sign in"}
-          </Button>
-       </form>
-    </ main>
+        <Button disabled={loading} type="submit">
+          {loading ? (
+            <Oval
+              visible={true}
+              height="16"
+              width="16"
+              color="#fff"
+              secondaryColor="#fff"
+              ariaLabel="oval-loading"
+            />
+          ) : (
+            "Sign in"
+          )}
+        </Button>
+      </form>
+    </main>
   );
 }
