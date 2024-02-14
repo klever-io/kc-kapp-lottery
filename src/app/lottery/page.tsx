@@ -183,11 +183,6 @@ export default function Page() {
         "utf8",
       ).toString("base64");
 
-      console.log("lotteruFunction:", lotteryFunction);
-      console.log("hexArgs:", hexArgs);
-      console.log("toastMessage:", toastMessage);
-      console.log("callValue:", callValue);
-
       const unsignedTx = await web.buildTransaction(
         [
           {
