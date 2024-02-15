@@ -20,7 +20,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${manrope.className} h-screen w-screen flex flex-col justify-between items-center`}
+        className={`${manrope.className} h-screen w-screen flex flex-col justify-between items-center text-white`}
       >
         <h1 className="text-center text-3xl font-bold py-4">
           Lottery Klever Smart Contract

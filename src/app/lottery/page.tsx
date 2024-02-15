@@ -213,6 +213,7 @@ export default function Page() {
 
       toast({
         title: toastMessage,
+        className: "bg-[#4EBC87]",
         description: (
           <Link
             target="_blank"
@@ -226,6 +227,7 @@ export default function Page() {
       toast({
         variant: "destructive",
         title: String(error),
+        className: "bg-[#FF4465]",
       });
     }
   }
