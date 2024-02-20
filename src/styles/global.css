@@ -4,8 +4,25 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --background: #0b0b1e;
+    --card-background: linear-gradient(
+        rgba(34, 35, 69, 0.5) 0%,
+        rgba(34, 35, 69, 0) 100%
+      )
+      gradient;
+    --border-color: rgb(34, 35, 69);
+    --begin-gradient: rgba(34, 35, 69, 0.5) 0%;
+    --end-gradient: rgba(34, 35, 69, 0) 100%;
+
+    --font-color-1: #fff;
+    --font-color-2: #c6c7eb;
+    --font-color-3: #646693;
+    --background-button: #aa33b5;
+    --background-button-lighten: #c451ce;
+    --background-button-darken: #77247f;
+    --boxes-width: min(30rem, 94vw);
+
+    --foreground: 210 40% 98%;
 
     --card: 0 0% 100%;
     --card-foreground: 222.2 84% 4.9%;
@@ -74,4 +91,3 @@
     @apply bg-background text-foreground;
   }
 }
-

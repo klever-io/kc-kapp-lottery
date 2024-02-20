@@ -1,12 +1,15 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Manrope } from "next/font/google";
 import "../styles/global.css";
 import { Providers } from "./providers";
 
-const inter = Inter({ subsets: ["latin"] });
+const manrope = Manrope({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Lottery Smart Contract",
+  icons: {
+    icon: "/favicon-32x32.png",
+  },
 };
 
 export default function RootLayout({
@@ -16,10 +19,16 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`${inter.className} h-screen w-screen flex flex-col justify-between items-center`}>
-        <h1 className='text-center text-3xl font-bold py-4'>Lottery App Smart Contract</h1>
+      <body
+        className={`${manrope.className} h-screen w-screen flex flex-col justify-between items-center text-white`}
+      >
+        <h1 className="text-center text-3xl font-bold py-4">
+          Lottery Klever Smart Contract
+        </h1>
         <Providers>{children}</Providers>
-        <footer className='text-center'>Version 1.0 Ⓒ Klever</footer>
+        <footer className="text-center ">
+          © 2024 — Copyright - Klever - version 1.0.0
+        </footer>
       </body>
     </html>
   );

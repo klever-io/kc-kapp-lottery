@@ -1,7 +1,1 @@
-export type scStatus = {
-  data: {
-    data: string;
-  };
-  error: string;
-  code: string;
-};
+export type ScStatus = "ENDED" | "ACTIVE" | "PENDING" | "FETCHING";
