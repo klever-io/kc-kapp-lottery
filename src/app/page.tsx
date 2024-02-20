@@ -31,8 +31,8 @@ export default function Home() {
       }
 
       web.setProvider({
-        node: "https://node" + PROVIDER_URL,
-        api: "https://api" + PROVIDER_URL,
+        node: "https://node." + PROVIDER_URL,
+        api: "https://api." + PROVIDER_URL,
       });
 
       setAddress(address);

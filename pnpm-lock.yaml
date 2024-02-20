@@ -6,8 +6,8 @@ settings:
 
 dependencies:
   '@klever/sdk-web':
-    specifier: ^1.0.7
-    version: 1.0.7
+    specifier: ^1.1.2
+    version: 1.1.2
   '@radix-ui/react-toast':
     specifier: ^1.1.4
     version: 1.1.4(@types/react-dom@18.2.7)(@types/react@18.2.21)(react-dom@18.2.0)(react@18.2.0)
@@ -196,10 +196,11 @@ packages:
       '@protobuf-ts/plugin': 2.9.3
     dev: false
 
-  /@klever/sdk-web@1.0.7:
-    resolution: {integrity: sha512-pyYYGdRCGYR8ILJ5gXNtvd9sHoj5BfNtP70C1gr1lt3H2NGrlul1hfZ08UXtD5nUGISFhq35WKWxgPnpZU54lQ==}
+  /@klever/sdk-web@1.1.2:
+    resolution: {integrity: sha512-iQI6LM6HrYEx8XQeDnArpZ5xpy2KsCe/WluVPOdwjVggboj5IoqzP2X28JMDMEN5fJK1StY34Zuyop4H1eTUWg==}
     dependencies:
       '@klever/kleverweb': 1.2.2
+      bech32: 2.0.0
     dev: false
 
   /@next/env@13.4.19:
@@ -917,6 +918,10 @@ packages:
 
   /balanced-match@1.0.2:
     resolution: {integrity: sha512-3oSeUO0TMV67hN1AmbXsK4yaqU7tjiHlbxRDZOpH0KW9+CeX4bRAaX0Anxt0tx2MrpRpWwQaPwIlISEJhYU5Pw==}
+    dev: false
+
+  /bech32@2.0.0:
+    resolution: {integrity: sha512-LcknSilhIGatDAsY1ak2I8VtGaHNhgMSYVxFrGLXv+xLHytaKZKcaUJJUE7qmBr7h33o5YQwP55pMI0xmkpJwg==}
     dev: false
 
   /binary-extensions@2.2.0:
