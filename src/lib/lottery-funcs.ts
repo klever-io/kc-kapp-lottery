@@ -1,3 +1,4 @@
+import { abiDecoder } from '@klever/sdk-web';
 import {
   LOTTERY_FUNCTIONS,
   LOTTERY_NAME,
@@ -6,6 +7,7 @@ import {
 } from "../../env";
 import { ScStatus } from "../types/sc";
 import { stringToHex } from "./hex";
+import { abiString, nameOfFieldTypes } from './lottery-abi';
 
 async function requestNode(
   funcName: string,
@@ -54,12 +56,18 @@ export async function verifyScStatus(): Promise<ScStatus> {
   return statusParsed[scStatus.data.data];
 }
 
-export async function getLotteryInfo(): Promise<string> {
+export async function getLotteryInfo(): Promise<any> {
   const res = await requestNode(LOTTERY_FUNCTIONS.info, "hex");
 
   if (!res.data) {
     return res;
   }
 
-  return res.data.data as string;
+  const decodedInfos = abiDecoder.decodeStruct(
+    res.data.data,
+    nameOfFieldTypes,
+    abiString,
+  );
+
+  return decodedInfos;
 }
