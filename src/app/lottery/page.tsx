@@ -1,34 +1,32 @@
 "use client";
 
 import { toast } from "@/components/ui/use-toast";
-import {
-  ISmartContract,
-  TransactionType,
-  abiDecoder,
-  web,
-} from "@klever/sdk-web";
+import { ISmartContract, TransactionType, web } from "@klever/sdk-web";
 import { Crown, Dices, Ticket } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { ReactElement, useCallback, useEffect, useState } from "react";
 import { Oval } from "react-loader-spinner";
 import {
+  LOTTERY_DURATION_MINUTES,
   LOTTERY_FUNCTIONS,
   LOTTERY_NAME,
   LOTTERY_PRICE,
   LOTTERY_TOKEN,
+  PRECISION,
   SC_ADDRESS,
-  TOTAL_TICKETS,
 } from "../../../env";
 import { Button } from "../../components/button";
 import { useAuth } from "../../contexts/auth-context";
 import { stringToHex } from "../../lib/hex";
-import { abiString, nameOfFieldTypes } from "../../lib/lottery-abi";
-import { getLotteryInfo, verifyScStatus } from "../../lib/lottery-funcs";
+import { verifyScStatus } from "../../lib/lottery-funcs";
 import { transactionsProcessed } from "../../lib/transaction";
 import { ScStatus } from "../../types/sc";
+import LotteryInfo from "./lottery-info";
 
 export default function Page() {
+  const SIXTY_SECONDS = 60;
+
   type UiParams = {
     h1Text: string;
     h3Text: string;
@@ -42,11 +40,6 @@ export default function Page() {
     toastMessage: string;
     callValue?: { [tokenName: string]: number };
   };
-
-  type ParsedLotteryInfosArray = Array<{
-    title: string;
-    value: string | number;
-  }>;
 
   const [isLoading, setIsLoading] = useState(true);
   const [firstRender, setFirstRender] = useState(true);
@@ -66,7 +59,8 @@ export default function Page() {
       toastMessage: "",
     });
 
-  const [lotteryInfos, setLotteryInfos] = useState<ParsedLotteryInfosArray>([]);
+  const [updateLottoInfos, setUpdateLottoInfos] = useState(false);
+
   const router = useRouter();
 
   const { address } = useAuth();
@@ -81,18 +75,16 @@ export default function Page() {
     (status: ScStatus) => {
       switch (status) {
         case "ENDED":
-          const lotteryDurationSeconds = 300; // 5 minutes
+          const lotteryDurationSeconds = SIXTY_SECONDS * LOTTERY_DURATION_MINUTES;
           const timestampSeconds = Math.floor(Date.now() / 1000);
           const deadline = timestampSeconds + lotteryDurationSeconds;
-
-          setLotteryInfos([]);
 
           setLotteryActionParams({
             lotteryFunction: LOTTERY_FUNCTIONS.start,
             hexArgs:
               `@${stringToHex(LOTTERY_NAME)}` +
               `@${stringToHex(LOTTERY_TOKEN)}` +
-              `@${LOTTERY_PRICE.toString(16)}` +
+              `@${(LOTTERY_PRICE * PRECISION).toString(16)}` +
               `@@01${deadline.toString(16).padStart(16, "0").toUpperCase()}@@@`,
             toastMessage: "Lottery started successfully!",
           });
@@ -109,7 +101,7 @@ export default function Page() {
             lotteryFunction: LOTTERY_FUNCTIONS.buy,
             hexArgs: `@${stringToHex(LOTTERY_NAME)}`,
             toastMessage: "You bought a ticket!",
-            callValue: { [LOTTERY_TOKEN]: LOTTERY_PRICE },
+            callValue: { [LOTTERY_TOKEN]: LOTTERY_PRICE * PRECISION },
           });
 
           setUiParams({
@@ -120,8 +112,6 @@ export default function Page() {
           });
           break;
         case "PENDING":
-          setLotteryInfos([]);
-
           setLotteryActionParams({
             lotteryFunction: LOTTERY_FUNCTIONS.end,
             hexArgs: `@${stringToHex(LOTTERY_NAME)}`,
@@ -148,38 +138,6 @@ export default function Page() {
     [router],
   );
 
-  const updateLotteryInfos = async () => {
-    const freshLotteryInfos = await getLotteryInfo();
-
-    const decodedInfos = abiDecoder.decodeStruct(
-      freshLotteryInfos,
-      nameOfFieldTypes,
-      abiString,
-    );
-
-    const deadlineDate = new Date(Number(decodedInfos.deadline) * 1000);
-    const year = deadlineDate.getFullYear();
-    const month = (deadlineDate.getMonth() + 1).toString().padStart(2, "0");
-    const day = deadlineDate.getDate().toString().padStart(2, "0");
-    const hours = deadlineDate.getHours().toString().padStart(2, "0");
-    const minutes = deadlineDate.getMinutes().toString().padStart(2, "0");
-    const seconds = deadlineDate.getSeconds().toString().padStart(2, "0");
-
-    const formatedDeadline = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-
-    const prizePool = decodedInfos.prize_pool.toString() + " " + LOTTERY_TOKEN;
-    const ticketsLeft = Number(decodedInfos.tickets_left);
-    const ticketsSold = TOTAL_TICKETS - ticketsLeft;
-
-    setLotteryInfos([
-      { title: "Total tickets", value: TOTAL_TICKETS },
-      { title: "Tickets left", value: ticketsLeft },
-      { title: "Tickets sold", value: ticketsSold },
-      { title: "Prize pool", value: prizePool },
-      { title: "Deadline", value: formatedDeadline },
-    ]);
-  };
-
   const compareLotteryStatus = async (): Promise<boolean> => {
     const freshStatus = await verifyScStatus();
     const comparison = freshStatus !== scStatus;
@@ -199,8 +157,8 @@ export default function Page() {
     try {
       setIsLoading(true);
 
-      const compareStatus = await compareLotteryStatus();
-      if (compareStatus) return;
+      const compareStatusResult = await compareLotteryStatus();
+      if (compareStatusResult) return;
 
       const payload: ISmartContract = {
         address: SC_ADDRESS,
@@ -234,10 +192,12 @@ export default function Page() {
         verifyScStatus(),
       ]);
 
-      if (freshScStatus === "ACTIVE") await updateLotteryInfos();
-
       setScStatus(freshScStatus);
       setIsLoading(false);
+
+      if (freshScStatus === "ACTIVE") {
+        setUpdateLottoInfos(!updateLottoInfos); // Update lottery infos
+      }
 
       if (error.length > 0) throw new Error(error);
 
@@ -264,6 +224,10 @@ export default function Page() {
     }
   }
 
+  const updateScStatusOnTimeout = () =>  {
+    setScStatus("PENDING");
+  }
+
   useEffect(() => {
     (async () => {
       const status = await verifyScStatus();
@@ -274,11 +238,6 @@ export default function Page() {
 
   useEffect(() => {
     if (scStatus === "FETCHING") return;
-    if (scStatus === "ACTIVE") {
-      (async () => {
-        await updateLotteryInfos();
-      })();
-    }
     updateStates(scStatus);
   }, [scStatus, updateStates]);
 
@@ -298,8 +257,6 @@ export default function Page() {
           color="#fff"
           secondaryColor="#fff"
           ariaLabel="oval-loading"
-          wrapperStyle={{}}
-          wrapperClass=""
         />
       ) : (
         <main className="flex items-center justify-center">
@@ -315,23 +272,18 @@ export default function Page() {
               </div>
             </div>
 
-            {lotteryInfos.length > 0 && (
-              <>
-                <div className="mt-6 mb-2 h-[1px] w-full bg-slate-300" />
-                <h3 className="font-bold mb-2">Lottery Infos</h3>
-                {lotteryInfos.map(({ title, value }) => (
-                  <p key={title} className="text-sm block">
-                    {title}: <span className="font-bold">{value}</span>
-                  </p>
-                ))}
-              </>
+            {scStatus === "ACTIVE" && (
+              <LotteryInfo
+                updateLottoInfos={updateLottoInfos}
+                onTimeout={updateScStatusOnTimeout}
+              />
             )}
 
             <div className="mt-2 mb-6 h-[1px] w-full bg-slate-300" />
             <Button
               type="button"
               disabled={isLoading}
-              onClick={() => lotteryActions(lotteryActionParams)}
+              onClick={async () => lotteryActions(lotteryActionParams)}
             >
               {isLoading ? (
                 <Oval
