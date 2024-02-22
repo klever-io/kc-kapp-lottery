@@ -3,13 +3,13 @@
 import { useCallback, useEffect, useState } from "react";
 import { Oval } from "react-loader-spinner";
 import {
+  LOTTERY_NAME,
   LOTTERY_PRICE,
   LOTTERY_TOKEN,
   PRECISION,
   TOTAL_TICKETS,
 } from "../../../env";
 import { getLotteryInfo } from "../../lib/lottery-funcs";
-import { ScStatus } from '../../types/sc';
 
 export default function LotteryInfo({
   updateLottoInfos,
