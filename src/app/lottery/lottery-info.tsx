@@ -49,6 +49,7 @@ export default function LotteryInfo({
     const ticketsSold = (TOTAL_TICKETS - ticketsLeft).toString();
 
     setLotteryInfos([
+      { title: "Lottery name", value: LOTTERY_NAME },
       { title: "Total tickets", value: TOTAL_TICKETS.toString() },
       { title: "Tickets left", value: ticketsLeft.toString() },
       { title: "Tickets sold", value: ticketsSold },
