@@ -6,8 +6,8 @@ settings:
 
 dependencies:
   '@klever/sdk-web':
-    specifier: ^1.1.2
-    version: 1.1.2
+    specifier: ^1.1.6
+    version: 1.1.6
   '@radix-ui/react-toast':
     specifier: ^1.1.4
     version: 1.1.4(@types/react-dom@18.2.7)(@types/react@18.2.21)(react-dom@18.2.0)(react@18.2.0)
@@ -196,8 +196,8 @@ packages:
       '@protobuf-ts/plugin': 2.9.3
     dev: false
 
-  /@klever/sdk-web@1.1.2:
-    resolution: {integrity: sha512-iQI6LM6HrYEx8XQeDnArpZ5xpy2KsCe/WluVPOdwjVggboj5IoqzP2X28JMDMEN5fJK1StY34Zuyop4H1eTUWg==}
+  /@klever/sdk-web@1.1.6:
+    resolution: {integrity: sha512-Ufgrddk3MED+//9ryUizMtko0pz5GGFH9Xeodb/N52WMefYfflYbI3/d4mcP7DaNhUSKVE5EKEMGK9K1Oy7N4A==}
     dependencies:
       '@klever/kleverweb': 1.2.2
       bech32: 2.0.0

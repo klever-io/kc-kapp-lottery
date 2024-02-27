@@ -9,7 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@klever/sdk-web": "^1.1.2",
+    "@klever/sdk-web": "^1.1.6",
     "@radix-ui/react-toast": "^1.1.4",
     "@types/node": "20.5.9",
     "@types/react": "18.2.21",

@@ -1,4 +1,4 @@
-import { abiDecoder } from '@klever/sdk-web';
+import { abiDecoder } from "@klever/sdk-web";
 import {
   LOTTERY_FUNCTIONS,
   LOTTERY_NAME,
@@ -7,20 +7,36 @@ import {
 } from "../../env";
 import { ScStatus } from "../types/sc";
 import { stringToHex } from "./hex";
-import { abiString, nameOfFieldTypes } from './lottery-abi';
+import {
+  LOTTERY_INFO_FIELD_NAME,
+  WINNER_INFO_FIELD_NAME,
+  generalInfoAbiString,
+  winnerInfoAbiString,
+} from "./lottery-abi";
 
 async function requestNode(
   funcName: string,
   endopint: "int" | "hex" | "string",
+  hasArgs: boolean,
 ): Promise<any> {
   try {
     const lotteryNameHex = stringToHex(LOTTERY_NAME);
 
-    const body = JSON.stringify({
+    type BodyObject = {
+      scAddress: string;
+      funcName: string;
+      args: string[];
+    };
+
+    const bodyObject: BodyObject = {
       scAddress: SC_ADDRESS,
       funcName,
-      args: [lotteryNameHex],
-    });
+      args: [],
+    };
+
+    hasArgs && bodyObject.args.push(lotteryNameHex);
+
+    const body = JSON.stringify(bodyObject);
 
     const res = await fetch(
       "https://node." + PROVIDER_URL + "/vm/" + endopint,
@@ -47,7 +63,7 @@ export async function verifyScStatus(): Promise<ScStatus> {
     "2": "PENDING",
   };
 
-  const scStatus = await requestNode(LOTTERY_FUNCTIONS.status, "int");
+  const scStatus = await requestNode(LOTTERY_FUNCTIONS.status, "int", true);
 
   if (!scStatus.data) {
     return scStatus;
@@ -56,8 +72,18 @@ export async function verifyScStatus(): Promise<ScStatus> {
   return statusParsed[scStatus.data.data];
 }
 
-export async function getLotteryInfo(): Promise<any> {
-  const res = await requestNode(LOTTERY_FUNCTIONS.info, "hex");
+type LotteryInfo = {
+  deadline: bigint;
+  max_entries_per_user: number;
+  prize_distribution: string;
+  prize_pool: bigint;
+  ticket_price: bigint;
+  tickets_left: number;
+  token_identifier: string;
+};
+
+export async function getLotteryInfo(): Promise<LotteryInfo> {
+  const res = await requestNode(LOTTERY_FUNCTIONS.info, "hex", true);
 
   if (!res.data) {
     return res;
@@ -65,9 +91,37 @@ export async function getLotteryInfo(): Promise<any> {
 
   const decodedInfos = abiDecoder.decodeStruct(
     res.data.data,
-    nameOfFieldTypes,
-    abiString,
-  );
+    LOTTERY_INFO_FIELD_NAME,
+    generalInfoAbiString,
+  ) as LotteryInfo;
+
+  return decodedInfos;
+}
+
+export type WinnersInfo = {
+  drawn_ticket_number: number;
+  prize: bigint;
+  winner_address: string;
+};
+
+export async function getWinnersInfos(): Promise<WinnersInfo[]> {
+  const res = await requestNode(LOTTERY_FUNCTIONS.winnersInfo, "hex", false);
+
+  console.log(res);
+  if (!res.data) {
+    return res;
+  }
+
+  if (res.data.data.length === 0) {
+    return [];
+  }
+
+  const decodedInfos = abiDecoder.decodeList(
+    res.data.data,
+    "List<" + WINNER_INFO_FIELD_NAME + ">",
+    winnerInfoAbiString,
+  ) as WinnersInfo[];
+  // decodedInfos.length
 
   return decodedInfos;
 }

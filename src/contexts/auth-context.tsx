@@ -1,11 +1,11 @@
 import {
   Dispatch,
-  ReactNode,
   SetStateAction,
   createContext,
   useContext,
   useState,
 } from "react";
+import { ContextProviderProps } from './provider-props';
 
 interface AuthContextProps {
   address: string;
@@ -14,11 +14,7 @@ interface AuthContextProps {
 
 const AuthContext = createContext({} as AuthContextProps);
 
-interface AuthProviderProps {
-  children: ReactNode;
-}
-
-export function AuthProvider({ children }: AuthProviderProps) {
+export function AuthProvider({ children }: ContextProviderProps) {
   const [address, setAddress] = useState("");
 
   return (
