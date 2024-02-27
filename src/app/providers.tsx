@@ -1,7 +1,7 @@
 "use client";
 
 import { Toaster } from "@/components/ui/toaster";
-import { AuthProvider } from "@/contexts/auth-context";
+import { AuthProvider, ScStatusProvider } from "@/contexts";
 import { ReactNode } from "react";
 
 interface ProvidersProps {
@@ -11,8 +11,10 @@ interface ProvidersProps {
 export function Providers({ children }: ProvidersProps) {
   return (
     <AuthProvider>
-      {children}
-      <Toaster />
+      <ScStatusProvider>
+        {children}
+        <Toaster />
+      </ScStatusProvider>
     </AuthProvider>
   );
 }

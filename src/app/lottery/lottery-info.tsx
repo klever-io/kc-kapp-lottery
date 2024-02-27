@@ -1,23 +1,24 @@
 "use client";
 
+import { useScStatus } from "@/contexts";
 import { useCallback, useEffect, useState } from "react";
-import { Oval } from "react-loader-spinner";
+import { Oval, ProgressBar } from "react-loader-spinner";
 import {
   LOTTERY_NAME,
   LOTTERY_PRICE,
   LOTTERY_TOKEN,
   PRECISION,
+  SC_ADDRESS,
   TOTAL_TICKETS,
 } from "../../../env";
-import { getLotteryInfo } from "../../lib/lottery-funcs";
+import Address from "../../components/address";
+import { getLotteryInfo, verifyScStatus } from "../../lib/lottery-funcs";
 
-export default function LotteryInfo({
-  updateLottoInfos,
-  onTimeout,
-}: {
-  updateLottoInfos: boolean;
-    onTimeout: () => void;
-}) {
+type LotteryInfoProp = {
+  shouldUpdate: boolean;
+};
+
+export default function LotteryInfo({ shouldUpdate }: LotteryInfoProp) {
   type ParsedLotteryInfos = Array<{
     title: string;
     value: string;
@@ -26,6 +27,10 @@ export default function LotteryInfo({
   const [lotteryInfos, setLotteryInfos] = useState<ParsedLotteryInfos>([]);
   const [rawDeadline, setRawDeadline] = useState<number>(0);
   const [timeRemaining, setTimeRemaining] = useState<string>("");
+  const { setScStatus } = useScStatus();
+
+  const NEARLY_FINISHED =
+    "Waiting for the next block to end this lottery. Buy another ticket now!";
 
   const fillLotteryInfos = async () => {
     const freshLotteryInfos = await getLotteryInfo();
@@ -59,13 +64,16 @@ export default function LotteryInfo({
     ]);
   };
 
-  const updateCountdown = useCallback(() => {
+  const timeDifference = useCallback((): number => {
     const now = Date.now() / 1000; // Current timestamp in seconds
-    const difference = rawDeadline - now;
+    return rawDeadline - now;
+  }, [rawDeadline]);
+
+  const updateCountdown = useCallback(() => {
+    const difference = timeDifference();
 
     if (difference <= 0) {
-      onTimeout();
-      setTimeRemaining("00 days 00:00:00");
+      setTimeRemaining(NEARLY_FINISHED);
       return;
     }
 
@@ -85,13 +93,15 @@ export default function LotteryInfo({
     const formattedTime = `${days} days ${hours}:${minutes}:${seconds}`;
 
     setTimeRemaining(formattedTime);
-  }, [rawDeadline, onTimeout]);
+  }, [timeDifference]);
 
   useEffect(() => {
-    (async () => {
-      await fillLotteryInfos();
-    })();
+    fillLotteryInfos();
   }, []);
+
+  useEffect(() => {
+    fillLotteryInfos();
+  }, [shouldUpdate]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -102,8 +112,19 @@ export default function LotteryInfo({
   }, [timeRemaining, updateCountdown]);
 
   useEffect(() => {
-    fillLotteryInfos();
-  }, [updateLottoInfos]);
+    if (timeRemaining !== NEARLY_FINISHED) {
+      return;
+    }
+
+    const interval = setInterval(() => {
+      (async () => {
+        const status = await verifyScStatus();
+        status === "PENDING" && setScStatus("PENDING");
+      })();
+    }, 2000);
+
+    return () => clearInterval(interval);
+  }, [timeRemaining, setScStatus]);
 
   return lotteryInfos.length === 0 ? (
     <Oval
@@ -117,15 +138,33 @@ export default function LotteryInfo({
     />
   ) : (
     <>
-      <div className="mt-6 mb-2 h-[1px] w-full bg-slate-300" />
-      <h3 className="font-bold mb-2">Lottery Infos</h3>
+      <div className="mt-6 mb-2 h-[1px] w-full bg-slate-300 text-5xl" />
+      <h3 className="font-bold mb-2 text-lg">Lottery Infos</h3>
+      <Address prefix="Lottery address" address={SC_ADDRESS} />
       {lotteryInfos.map(({ title, value }) => (
-        <p key={title} className="text-sm block">
+        <p key={title} className="block">
           {title}: <span className="font-bold">{value}</span>
         </p>
       ))}
-      <p className="text-sm block">
-        Time remaining: <span className="font-bold">{timeRemaining}</span>
+      <p className="block">
+        Time remaining:{" "}
+        {timeRemaining.length === 0 ? (
+          <ProgressBar
+            visible={true}
+            height="20"
+            width="40"
+            barColor="#fff"
+            borderColor="none"
+            ariaLabel="progress-bar-loading"
+            wrapperClass="inline"
+          />
+        ) : (
+          <span
+            className={`font-bold ${timeRemaining === NEARLY_FINISHED && "animate-blinkingText"}`}
+          >
+            {timeRemaining}
+          </span>
+        )}
       </p>
     </>
   );

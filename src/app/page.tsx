@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/button";
 import { useToast } from "@/components/ui/use-toast";
-import { useAuth } from "@/contexts/auth-context";
+import { useAuth } from "@/contexts";
 import { web } from "@klever/sdk-web";
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";

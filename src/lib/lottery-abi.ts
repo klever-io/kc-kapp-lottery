@@ -1,8 +1,8 @@
-export const nameOfFieldTypes = "LotteryInfo";
+export const LOTTERY_INFO_FIELD_NAME = "LotteryInfo";
 
-export const abiString = JSON.stringify({
+export const generalInfoAbiString = JSON.stringify({
   types: {
-    [nameOfFieldTypes]: {
+    [LOTTERY_INFO_FIELD_NAME]: {
       type: "struct",
       fields: [
         {
@@ -31,6 +31,30 @@ export const abiString = JSON.stringify({
         },
         {
           name: "prize_pool",
+          type: "BigUint",
+        },
+      ],
+    },
+  },
+});
+
+export const WINNER_INFO_FIELD_NAME = "WinnerInfo";
+
+export const winnerInfoAbiString = JSON.stringify({
+  types: {
+    [WINNER_INFO_FIELD_NAME]: {
+      type: "struct",
+      fields: [
+        {
+          name: "drawn_ticket_number",
+          type: "u32",
+        },
+        {
+          name: "winner_address",
+          type: "Address",
+        },
+        {
+          name: "prize",
           type: "BigUint",
         },
       ],

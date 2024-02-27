@@ -1,6 +1,7 @@
 "use client";
 
 import { toast } from "@/components/ui/use-toast";
+import { useAuth, useScStatus } from "@/contexts";
 import { ISmartContract, TransactionType, web } from "@klever/sdk-web";
 import { Crown, Dices, Ticket } from "lucide-react";
 import Link from "next/link";
@@ -15,14 +16,16 @@ import {
   LOTTERY_TOKEN,
   PRECISION,
   SC_ADDRESS,
+  TOTAL_TICKETS,
 } from "../../../env";
+import Box from "../../components/box";
 import { Button } from "../../components/button";
-import { useAuth } from "../../contexts/auth-context";
 import { stringToHex } from "../../lib/hex";
 import { verifyScStatus } from "../../lib/lottery-funcs";
 import { transactionsProcessed } from "../../lib/transaction";
 import { ScStatus } from "../../types/sc";
 import LotteryInfo from "./lottery-info";
+import Winners from "./winners";
 
 export default function Page() {
   const SIXTY_SECONDS = 60;
@@ -43,7 +46,7 @@ export default function Page() {
 
   const [isLoading, setIsLoading] = useState(true);
   const [firstRender, setFirstRender] = useState(true);
-  const [scStatus, setScStatus] = useState<ScStatus>("FETCHING");
+  const { scStatus, setScStatus } = useScStatus();
 
   const [uiParams, setUiParams] = useState<UiParams>({
     h1Text: "",
@@ -59,7 +62,7 @@ export default function Page() {
       toastMessage: "",
     });
 
-  const [updateLottoInfos, setUpdateLottoInfos] = useState(false);
+  const [updateInfos, setUpdateInfos] = useState(true);
 
   const router = useRouter();
 
@@ -75,7 +78,8 @@ export default function Page() {
     (status: ScStatus) => {
       switch (status) {
         case "ENDED":
-          const lotteryDurationSeconds = SIXTY_SECONDS * LOTTERY_DURATION_MINUTES;
+          const lotteryDurationSeconds =
+            SIXTY_SECONDS * LOTTERY_DURATION_MINUTES;
           const timestampSeconds = Math.floor(Date.now() / 1000);
           const deadline = timestampSeconds + lotteryDurationSeconds;
 
@@ -194,10 +198,7 @@ export default function Page() {
 
       setScStatus(freshScStatus);
       setIsLoading(false);
-
-      if (freshScStatus === "ACTIVE") {
-        setUpdateLottoInfos(!updateLottoInfos); // Update lottery infos
-      }
+      setUpdateInfos((prev) => !prev);
 
       if (error.length > 0) throw new Error(error);
 
@@ -224,17 +225,13 @@ export default function Page() {
     }
   }
 
-  const updateScStatusOnTimeout = () =>  {
-    setScStatus("PENDING");
-  }
-
   useEffect(() => {
     (async () => {
       const status = await verifyScStatus();
       setScStatus(status);
     })();
     setIsLoading(false);
-  }, []);
+  }, [setScStatus]);
 
   useEffect(() => {
     if (scStatus === "FETCHING") return;
@@ -259,52 +256,49 @@ export default function Page() {
           ariaLabel="oval-loading"
         />
       ) : (
-        <main className="flex items-center justify-center">
-          <div
-            className="bg-gradient-to-r from-[--begin-gradient]
-              to-[--end-gradient] p-4 border border-[--border-color]
-              rounded-md w-[--boxes-width]"
-          >
-            <div className="flex items-center justify-between gap-4">
-              <div>
-                <h1 className="font-bold text-lg">{uiParams.h1Text}</h1>
-                <h3 className="text-sm">{uiParams.h3Text}</h3>
+        <>
+          <main className="flex items-center justify-center">
+            <Box>
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <h1 className="font-bold text-lg">{uiParams.h1Text}</h1>
+                  <h3 className="text-sm">{uiParams.h3Text}</h3>
+                </div>
               </div>
-            </div>
 
-            {scStatus === "ACTIVE" && (
-              <LotteryInfo
-                updateLottoInfos={updateLottoInfos}
-                onTimeout={updateScStatusOnTimeout}
-              />
-            )}
-
-            <div className="mt-2 mb-6 h-[1px] w-full bg-slate-300" />
-            <Button
-              type="button"
-              disabled={isLoading}
-              onClick={async () => lotteryActions(lotteryActionParams)}
-            >
-              {isLoading ? (
-                <Oval
-                  visible={true}
-                  height="16"
-                  width="16"
-                  color="#fff"
-                  secondaryColor="#fff"
-                  ariaLabel="oval-loading"
-                />
-              ) : (
-                <>
-                  {React.cloneElement(uiParams.icon, {
-                    className: "w-5 h-5 pr-1",
-                  })}
-                  <span>{uiParams.spanText}</span>
-                </>
+              {scStatus === "ACTIVE" && (
+                <LotteryInfo shouldUpdate={updateInfos} />
               )}
-            </Button>
-          </div>
-        </main>
+
+              <div className="mt-2 mb-6 h-[1px] w-full bg-slate-300" />
+              <Button
+                type="button"
+                disabled={isLoading}
+                onClick={async () => lotteryActions(lotteryActionParams)}
+                className="text-base font-semibold"
+              >
+                {isLoading ? (
+                  <Oval
+                    visible={true}
+                    height="16"
+                    width="16"
+                    color="#fff"
+                    secondaryColor="#fff"
+                    ariaLabel="oval-loading"
+                  />
+                ) : (
+                  <>
+                    {React.cloneElement(uiParams.icon, {
+                      className: "w-5 h-5 pr-1",
+                    })}
+                    <span>{uiParams.spanText}</span>
+                  </>
+                )}
+              </Button>
+            </Box>
+          </main>
+          <Winners />
+        </>
       )}
     </>
   );
