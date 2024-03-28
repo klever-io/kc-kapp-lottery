@@ -1,7 +1,7 @@
 export const SC_ADDRESS =
-  "klv1qqqqqqqqqqqqqpgqlgcg0etc30jk54dvmtuv7gc804p8gc25xgdsm97ktw";
+  "klv1qqqqqqqqqqqqqpgqstur8rugf2k6dulnwl48frxwfgu6a7yyhtxsqf7j4f";
 export const PROVIDER_URL = "testnet.klever.finance";
-export const LOTTERY_NAME = "sclotterytestnet";
+export const LOTTERY_NAME = "SCLotteryDemo";
 export const LOTTERY_PRICE = 10;
 export const TOTAL_TICKETS = 800;
 export const LOTTERY_TOKEN = "KLV";

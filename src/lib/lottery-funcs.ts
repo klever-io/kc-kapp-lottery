@@ -105,7 +105,7 @@ export type WinnersInfo = {
 };
 
 export async function getWinnersInfos(): Promise<WinnersInfo[]> {
-  const res = await requestNode(LOTTERY_FUNCTIONS.winnersInfo, "hex", false);
+  const res = await requestNode(LOTTERY_FUNCTIONS.winnersInfo, "hex", true);
 
   console.log(res);
   if (!res.data) {

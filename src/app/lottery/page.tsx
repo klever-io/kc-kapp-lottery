@@ -16,7 +16,6 @@ import {
   LOTTERY_TOKEN,
   PRECISION,
   SC_ADDRESS,
-  TOTAL_TICKETS,
 } from "../../../env";
 import Box from "../../components/box";
 import { Button } from "../../components/button";
@@ -217,6 +216,7 @@ export default function Page() {
         ),
       });
     } catch (error) {
+      setIsLoading(false);
       toast({
         variant: "destructive",
         title: String(error),
