@@ -1,10 +1,5 @@
 import { abiDecoder } from "@klever/sdk-web";
-import {
-  LOTTERY_FUNCTIONS,
-  LOTTERY_NAME,
-  PROVIDER_URL,
-  SC_ADDRESS,
-} from "../../env";
+import { LOTTERY_FUNCTIONS, LOTTERY_NAME } from "../../env";
 import { ScStatus } from "../types/sc";
 import { stringToHex } from "./hex";
 import {
@@ -29,7 +24,7 @@ async function requestNode(
     };
 
     const bodyObject: BodyObject = {
-      scAddress: SC_ADDRESS,
+      scAddress: process.env.NEXT_PUBLIC_SC_ADDRESS as string,
       funcName,
       args: [],
     };
@@ -39,7 +34,7 @@ async function requestNode(
     const body = JSON.stringify(bodyObject);
 
     const res = await fetch(
-      "https://node." + PROVIDER_URL + "/vm/" + endopint,
+      process.env.NEXT_PUBLIC_NODE_URL + "/vm/" + endopint,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },

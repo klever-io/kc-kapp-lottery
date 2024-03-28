@@ -7,7 +7,6 @@ import { web } from "@klever/sdk-web";
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 import { Oval } from "react-loader-spinner";
-import { PROVIDER_URL } from "../../env";
 
 export default function Home() {
   const [loading, setLoading] = useState(false);
@@ -31,8 +30,8 @@ export default function Home() {
       }
 
       web.setProvider({
-        node: "https://node." + PROVIDER_URL,
-        api: "https://api." + PROVIDER_URL,
+        node: process.env.NEXT_PUBLIC_NODE_URL || 'http://localhost:8080',
+        api: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5671',
       });
 
       setAddress(address);

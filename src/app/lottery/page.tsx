@@ -15,7 +15,6 @@ import {
   LOTTERY_PRICE,
   LOTTERY_TOKEN,
   PRECISION,
-  SC_ADDRESS,
 } from "../../../env";
 import Box from "../../components/box";
 import { Button } from "../../components/button";
@@ -164,7 +163,7 @@ export default function Page() {
       if (compareStatusResult) return;
 
       const payload: ISmartContract = {
-        address: SC_ADDRESS,
+        address: process.env.NEXT_PUBLIC_SC_ADDRESS as string,
         scType: 0,
         callValue,
       };

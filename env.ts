@@ -1,6 +1,3 @@
-export const SC_ADDRESS =
-  "klv1qqqqqqqqqqqqqpgqstur8rugf2k6dulnwl48frxwfgu6a7yyhtxsqf7j4f";
-export const PROVIDER_URL = "testnet.klever.finance";
 export const LOTTERY_NAME = "SCLotteryDemo";
 export const LOTTERY_PRICE = 10;
 export const TOTAL_TICKETS = 800;

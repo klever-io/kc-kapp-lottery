@@ -8,7 +8,6 @@ import {
   LOTTERY_PRICE,
   LOTTERY_TOKEN,
   PRECISION,
-  SC_ADDRESS,
   TOTAL_TICKETS,
 } from "../../../env";
 import Address from "../../components/address";
@@ -140,7 +139,7 @@ export default function LotteryInfo({ shouldUpdate }: LotteryInfoProp) {
     <>
       <div className="mt-6 mb-2 h-[1px] w-full bg-slate-300 text-5xl" />
       <h3 className="font-bold mb-2 text-lg">Lottery Infos</h3>
-      <Address prefix="Lottery address" address={SC_ADDRESS} />
+      <Address prefix="Lottery address" address={process.env.NEXT_PUBLIC_SC_ADDRESS as string} />
       {lotteryInfos.map(({ title, value }) => (
         <p key={title} className="block">
           {title}: <span className="font-bold">{value}</span>
